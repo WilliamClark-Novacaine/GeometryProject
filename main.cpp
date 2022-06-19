@@ -3,6 +3,7 @@
 
 int main()
 {
-	RunAllTests();
+	GeometryTest* Tests = new GeometryTest;
+	Tests->RunAllTests();
 	return 0;
 }
