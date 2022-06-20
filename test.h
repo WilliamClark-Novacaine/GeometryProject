@@ -5,7 +5,7 @@ class GeometryTest
 public:
     void RunAllTests();
 private:
-    void TestEquals();
+    void TestEquals() const;
     void TestAdd();
     void TestSubtract();
     void TestScaleVector();
@@ -14,8 +14,8 @@ private:
     void TestCrossProduct();
     void TestNormalise();
     void TestProjection();
-    void TestComputeAngleBetween();
-    void TestComputeAngleBetween();
+    void TestComputeAngleBetween2D();
+    void TestComputeAngleBetween3D();
     void TestComputeDistancePointToLine();
     void TestComputeDistancePointToPlane();
     void TestComputeDistancePointToSphere();

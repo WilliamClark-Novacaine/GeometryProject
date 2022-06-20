@@ -4,36 +4,131 @@
 #include <vector>
 
 int g_iFailureCount = 0;
-int g_iSuccessfulTests = 0;
-int g_iTestsRun = 0;
+int g_iSuccessCount = 0;
+int g_iNumTestsRun = 0;
 
 void GeometryTest::RunAllTests()
 {
 	TestEquals();
 	
-	std::cout << "Tests Succeeded: " << g_iSuccessfulTests;
-	std::cout << "Tests Run:" << g_iTestsRun;
+	std::cout << "Tests Succeeded: " << g_iSuccessCount;
+	std::cout << "Tests Failed: " << g_iFailureCount;
+	std::cout << "Tests Run:" << g_iNumTestsRun;
 
 }
 
-void GeometryTest::TestEquals()
+void GeometryTest::TestEquals() const
 {
-	TVector3 TVector1Data[3] = {{1,2,3},{},{}};
-	TVector3 TVector2Data[3] = {{1,2,3},{},{}};
-	bool bExpectedResult[3] = {true, false, true};
-	for (int i; i < 3; i++)
+	constexpr TVector3 kv3Vector1Data[3] = {{1,2,3},{1, 3, 0},{0.007f, 0.0063f, 0.000012f} };
+	constexpr TVector3 kv3Vector2Data[3] = {{1,2,3},{1, 2.999999f, 0.0000001f},{0.2f, 1.4f, 8.f}};
+	constexpr bool kbExpectedResult[3] = {true, true, false};
+	for (int i = 0; i < std::size(kv3Vector1Data); i++)
 	{
-		if (Equals(TVector1Data[i], TVector2Data[i]) == true)
+		if (Equals(kv3Vector1Data[i], kv3Vector2Data[i]) == kbExpectedResult[i])
 		{
-			g_iSuccessfulTests += 1;
-			std::cout << "Equals: Test " << i + 1 << "Succeded" << std::endl;
+			std::cout << "Equals: Test " << i + 1 << " Succeeded" << std::endl;
+			g_iSuccessCount++;
 		}
 		else
 		{
-			std::cout << "Equals: Test " << i + 1<< "Failed" << std::endl;
-			std::cout << "Expected Result: " << bExpectedResult[i] << std::endl;
+			std::cout << "Equals: Test " << i + 1<< " Failed" << std::endl;
+			std::cout << "Expected Result: " << kbExpectedResult[i] << std::endl;
+			g_iFailureCount++;
 		}
+		g_iNumTestsRun++;
 	}
+}
+
+void GeometryTest::TestAdd()
+{
+}
+
+void GeometryTest::TestSubtract()
+{
+}
+
+void GeometryTest::TestScaleVector()
+{
+}
+
+void GeometryTest::TestMagnitude()
+{
+}
+
+void GeometryTest::TestDotProduct()
+{
+}
+
+void GeometryTest::TestCrossProduct()
+{
+}
+
+void GeometryTest::TestNormalise()
+{
+}
+
+void GeometryTest::TestProjection()
+{
+}
+
+void GeometryTest::TestComputeAngleBetween2D()
+{
+}
+
+void GeometryTest::TestComputeAngleBetween3D()
+{
+}
+
+void GeometryTest::TestComputeDistancePointToLine()
+{
+}
+
+void GeometryTest::TestComputeDistancePointToPlane()
+{
+}
+
+void GeometryTest::TestComputeDistancePointToSphere()
+{
+}
+
+void GeometryTest::TestComputeDistanceCircleToCircle()
+{
+}
+
+void GeometryTest::TestComputeDistanceCircleToTriangle()
+{
+}
+
+void GeometryTest::TestComputeLineSphereIntersection()
+{
+}
+
+void GeometryTest::TestIsLinePlaneIntersection()
+{
+}
+
+void GeometryTest::TestIsIntersection()
+{
+}
+
+void GeometryTest::TestComputeIntersectionBetweenLines()
+{
+}
+
+void GeometryTest::TestIsInFieldOfView()
+{
+}
+
+void GeometryTest::TestFindTriangleNormal()
+{
+}
+
+void GeometryTest::TestIsSurfaceLit()
+{
+}
+
+void GeometryTest::TestRotateTriangleAroundPoint()
+{
 }
 
 

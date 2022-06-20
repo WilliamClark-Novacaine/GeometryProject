@@ -11,7 +11,10 @@
 ************************************************/
 bool Equals(const TVector3& _krA, const TVector3& _krB)
 {
-	return _krA.m_fX == _krB.m_fX && _krA.m_fY == _krB.m_fY && _krA.m_fZ == _krB.m_fZ;
+	//Calculates an approximation of equality, to account for floating point number accuracy
+	return fabsf(_krA.m_fX - _krB.m_fX) <= FLT_EPSILON &&
+		   fabsf(_krA.m_fY - _krB.m_fY) <= FLT_EPSILON &&
+		   fabsf(_krA.m_fZ - _krB.m_fZ) <= FLT_EPSILON;
 }
 
 /***********************************************
