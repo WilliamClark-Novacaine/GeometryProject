@@ -9,7 +9,7 @@ int g_iNumTestsRun = 0;
 
 void GeometryTest::RunAllTests()
 {
-	TestEquals();
+	TestAdd();
 	
 	std::cout << "Tests Succeeded: " << g_iSuccessCount;
 	std::cout << "Tests Failed: " << g_iFailureCount;
@@ -41,6 +41,21 @@ void GeometryTest::TestEquals() const
 
 void GeometryTest::TestAdd()
 {
+	constexpr TVector3 v3TestVectorA{ 4,6,3 };
+	constexpr TVector3 v3TestVectorB{ 1,2,3 };
+	TVector3 Resultant1{ 0, 0, 0 };
+	Add(v3TestVectorA, v3TestVectorB, Resultant1);
+	if (Equals(Resultant1, {2,4,6}) == true)
+	{
+		std::cout << "Equals: Test " << 1 << " Succeeded" << std::endl;
+		g_iSuccessCount++;
+	}
+	else
+	{
+		std::cout << "Equals: Test " << 1 << " Failed" << std::endl;
+		std::cout << "Expected Result: " << true << std::endl;
+		g_iFailureCount++;
+	}
 }
 
 void GeometryTest::TestSubtract()

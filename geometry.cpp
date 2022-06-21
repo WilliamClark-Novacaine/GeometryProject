@@ -26,6 +26,10 @@ bool Equals(const TVector3& _krA, const TVector3& _krB)
 ************************************************/
 TVector3& Add(const TVector3& _krA, const TVector3& _krB, TVector3& _rResultant)
 {
+	///_krA = {1,2,3}
+	///_krB = {1,2,3}
+	///Expected Result = {2, 4, 6}
+	///Resulatant = {0,0,0}
 	_rResultant.m_fX = _krA.m_fX + _krB.m_fX;
 	_rResultant.m_fY = _krA.m_fY + _krB.m_fY;
 	_rResultant.m_fZ = _krA.m_fZ + _krB.m_fZ;
@@ -172,9 +176,7 @@ float ComputeAngleBetween(const TVector3& _krA, const TVector3& _krB)
 float ComputeDistancePointToLine(const T3DLine& _krLine, const TVector3& _krPoint)
 {
 	TVector3 resultant{};
-	const TVector3 pointToLine = {
-		(_krPoint.m_fX - _krLine.m_v3q.m_fX), (_krPoint.m_fY - _krLine.m_v3q.m_fY), (_krPoint.m_fZ - _krLine.m_v3q.m_fZ)
-	};
+	const TVector3 pointToLine = {(_krPoint.m_fX - _krLine.m_v3q.m_fX), (_krPoint.m_fY - _krLine.m_v3q.m_fY), (_krPoint.m_fZ - _krLine.m_v3q.m_fZ)};
 	return Magnitude(CrossProduct(pointToLine, _krLine.m_v3v, resultant)) / Magnitude(_krLine.m_v3v);
 }
 
