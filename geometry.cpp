@@ -39,7 +39,7 @@ TVector3& Add(const TVector3& _krA, const TVector3& _krB, TVector3& _rResultant)
 }
 
 /***********************************************
-* Subtract: Subrtracts Vector B to Vector A
+* Subtract: Subtracts Vector B to Vector A
 * @author: William Clark
 * @parameter: _krA Vector A
 *			  _krB Vector B
@@ -192,10 +192,10 @@ float ComputeDistancePointToLine(const T3DLine& _krLine, const TVector3& _krPoin
 float ComputeDistancePointToPlane(const TPlane& _krPlane, const TVector3& _krPoint)
 {
 	TVector3 v3PlaneToPoint{};
-	TVector3 v3PlaneNormal = _krPlane.m_v3normal;
-	TVector3 v3PlanePoint = _krPlane.m_v3point;
-	TVector3 SubVector = Subtract(v3PlanePoint, _krPoint, v3PlaneToPoint);
-	return abs(DotProduct(v3PlaneNormal, v3PlaneToPoint)) / Magnitude(v3PlaneNormal);
+	const TVector3 kv3PlaneNormal = _krPlane.m_v3normal;
+	const TVector3 kv3PlanePoint = _krPlane.m_v3point;
+	TVector3 SubVector = Subtract(kv3PlanePoint, _krPoint, v3PlaneToPoint);
+	return abs(DotProduct(kv3PlaneNormal, v3PlaneToPoint)) / Magnitude(kv3PlaneNormal);
 }
 
 /***********************************************
@@ -273,15 +273,25 @@ EIntersections ComputeLineSphereIntersection(const T3DLine& _krLine, const TSphe
 		(_krSphere.m_fRadius * _krSphere.m_fRadius);
 
 	// If the discriminant is negative
-	if ((fB * fB) - (4 * fA * fC) < 0)
+	if (fB * fB - 4 * fA * fC >= 0)
 	{
-		return INTERSECTION_NONE;
-	}
+		float fT1;
+		// If there is one intersection (discriminant is 0)
+		if (fB * fB - 4 * fA * fC != 0)
+		{
+			fT1 = (-fB / (2 * fA)) + sqrt((fB * fB) - ((4 * fA * fC))) / (2 * fA);
+			const float fT2 = (-fB / (2 * fA)) - sqrt((fB * fB) - ((4 * fA * fC))) / (2 * fA);
 
-	float fT1;
-	// If there is one intersection (discriminant is 0)
-	if (fB * fB - 4 * fA * fC == 0)
-	{
+			_rv3IntersectionPoint1.m_fX = (_krLine.m_v3v.m_fX * fT1) + _krLine.m_v3q.m_fX;
+			_rv3IntersectionPoint1.m_fY = (_krLine.m_v3v.m_fY * fT1) + _krLine.m_v3q.m_fY;
+			_rv3IntersectionPoint1.m_fZ = (_krLine.m_v3v.m_fZ * fT1) + _krLine.m_v3q.m_fZ;
+
+			_rv3IntersectionPoint2.m_fX = (_krLine.m_v3v.m_fX * fT2) + _krLine.m_v3q.m_fX;
+			_rv3IntersectionPoint2.m_fY = (_krLine.m_v3v.m_fY * fT2) + _krLine.m_v3q.m_fY;
+			_rv3IntersectionPoint2.m_fZ = (_krLine.m_v3v.m_fZ * fT2) + _krLine.m_v3q.m_fZ;
+
+			return INTERSECTION_TWO;
+		}
 		fT1 = -fB / (2 * fA);
 
 		_rv3IntersectionPoint1.m_fX = (_krLine.m_v3v.m_fX * fT1) + _krLine.m_v3q.m_fX;
@@ -292,19 +302,7 @@ EIntersections ComputeLineSphereIntersection(const T3DLine& _krLine, const TSphe
 
 		return INTERSECTION_ONE;
 	}
-
-	fT1 = (-fB / (2 * fA)) + sqrt((fB * fB) - ((4 * fA * fC))) / (2 * fA);
-	const float fT2 = (-fB / (2 * fA)) - sqrt((fB * fB) - ((4 * fA * fC))) / (2 * fA);
-
-	_rv3IntersectionPoint1.m_fX = (_krLine.m_v3v.m_fX * fT1) + _krLine.m_v3q.m_fX;
-	_rv3IntersectionPoint1.m_fY = (_krLine.m_v3v.m_fY * fT1) + _krLine.m_v3q.m_fY;
-	_rv3IntersectionPoint1.m_fZ = (_krLine.m_v3v.m_fZ * fT1) + _krLine.m_v3q.m_fZ;
-
-	_rv3IntersectionPoint2.m_fX = (_krLine.m_v3v.m_fX * fT2) + _krLine.m_v3q.m_fX;
-	_rv3IntersectionPoint2.m_fY = (_krLine.m_v3v.m_fY * fT2) + _krLine.m_v3q.m_fY;
-	_rv3IntersectionPoint2.m_fZ = (_krLine.m_v3v.m_fZ * fT2) + _krLine.m_v3q.m_fZ;
-
-	return INTERSECTION_TWO;
+	return INTERSECTION_NONE;
 }
 
 /***********************************************
@@ -318,16 +316,16 @@ EIntersections ComputeLineSphereIntersection(const T3DLine& _krLine, const TSphe
 bool IsLinePlaneIntersection(const T3DLine& _krLine, const TPlane& _krPlane, TVector3& _rv3IntersectionPoint)
 {
 	const float fDenominator = DotProduct(_krPlane.m_v3normal, _krLine.m_v3v);
-	if (fDenominator == 0)
+	if (fDenominator != 0)
 	{
-		return false;
+		const float _fD = -DotProduct(_krPlane.m_v3normal, _krPlane.m_v3point);
+		const float _fT = -(DotProduct(_krPlane.m_v3normal, _krLine.m_v3q) + _fD) / fDenominator;
+		_rv3IntersectionPoint.m_fX = _krLine.m_v3q.m_fX + _fT * _krLine.m_v3v.m_fX;
+		_rv3IntersectionPoint.m_fY = _krLine.m_v3q.m_fY + _fT * _krLine.m_v3v.m_fY;
+		_rv3IntersectionPoint.m_fZ = _krLine.m_v3q.m_fZ + _fT * _krLine.m_v3v.m_fZ;
+		return true;
 	}
-	const float _fD = -DotProduct(_krPlane.m_v3normal, _krPlane.m_v3point);
-	const float _fT = -(DotProduct(_krPlane.m_v3normal, _krLine.m_v3q) + _fD) / fDenominator;
-	_rv3IntersectionPoint.m_fX = _krLine.m_v3q.m_fX + _fT * _krLine.m_v3v.m_fX;
-	_rv3IntersectionPoint.m_fY = _krLine.m_v3q.m_fY + _fT * _krLine.m_v3v.m_fY;
-	_rv3IntersectionPoint.m_fZ = _krLine.m_v3q.m_fZ + _fT * _krLine.m_v3v.m_fZ;
-	return true;
+	return false;
 }
 
 /***********************************************
@@ -342,18 +340,17 @@ bool IsIntersection(const T3DLine& _krLine1, const T3DLine& _krLine2)
 	// Can we calculate an intersection
 	TVector3 v3L2VCrossL1V{};
 	CrossProduct(_krLine2.m_v3v, _krLine1.m_v3v, v3L2VCrossL1V);
-	if (Equals(v3L2VCrossL1V, {0, 0, 0}))
+	if (!Equals(v3L2VCrossL1V, {0, 0, 0}))
 	{
-		return false;
+		// Do the intersections match for both line equations
+		TVector3 v3Intersection1{};
+		TVector3 v3Intersection2{};
+		ComputeIntersectionBetweenLines(_krLine1, _krLine2, v3Intersection1);
+		ComputeIntersectionBetweenLines(_krLine2, _krLine1, v3Intersection2);
+
+		return Equals(v3Intersection1, v3Intersection2);
 	}
-
-	// Do the intersections match for both line equations
-	TVector3 v3Intersection1{};
-	TVector3 v3Intersection2{};
-	ComputeIntersectionBetweenLines(_krLine1, _krLine2, v3Intersection1);
-	ComputeIntersectionBetweenLines(_krLine2, _krLine1, v3Intersection2);
-
-	return Equals(v3Intersection1, v3Intersection2);
+	return false;
 }
 
 /***********************************************
@@ -366,30 +363,33 @@ bool IsIntersection(const T3DLine& _krLine1, const T3DLine& _krLine2)
 ************************************************/
 TVector3& ComputeIntersectionBetweenLines(const T3DLine& _krLine1, const T3DLine& _krLine2, TVector3& _rIntersectionPoint)
 {
-	TVector3 v3L1QCrossL2V{};
-	TVector3 v3L2VCrossL2Q{};
-	TVector3 v3L2VCrossL1V{};
-	CrossProduct(_krLine1.m_v3q, _krLine2.m_v3v, v3L1QCrossL2V);
-	CrossProduct(_krLine2.m_v3v, _krLine2.m_v3q, v3L2VCrossL2Q);
-	CrossProduct(_krLine2.m_v3v, _krLine1.m_v3v, v3L2VCrossL1V);
+	TVector3 v3Line1QCrossLine2V;
+	TVector3 v3Line2VCrossLine2Q;
+	TVector3 v3Line2VCrossLine1V;
+	CrossProduct(_krLine1.m_v3q, _krLine2.m_v3v, v3Line1QCrossLine2V);
+	CrossProduct(_krLine2.m_v3v, _krLine2.m_v3q, v3Line2VCrossLine2Q);
+	CrossProduct(_krLine2.m_v3v, _krLine1.m_v3v, v3Line2VCrossLine1V);
 
 	// Work out 't' using formula with non-zero denominator
 	float fT;
-	if (v3L2VCrossL1V.m_fX != 0)
+	if (!fabsf(v3Line2VCrossLine1V.m_fX - 0) > 0.01)
 	{
-		fT = (v3L1QCrossL2V.m_fX + v3L2VCrossL2Q.m_fX) / v3L2VCrossL1V.m_fX;
-	}
-	else if (v3L2VCrossL1V.m_fY != 0)
-	{
-		fT = (v3L1QCrossL2V.m_fY + v3L2VCrossL2Q.m_fY) / v3L2VCrossL1V.m_fY;
-	}
-	else if (v3L2VCrossL1V.m_fZ != 0)
-	{
-		fT = (v3L1QCrossL2V.m_fZ + v3L2VCrossL2Q.m_fZ) / v3L2VCrossL1V.m_fZ;
+		if (!fabsf(v3Line2VCrossLine1V.m_fX - 0) <= 0.01)
+		{
+			fT = (v3Line1QCrossLine2V.m_fY + v3Line2VCrossLine2Q.m_fY) / v3Line2VCrossLine1V.m_fY;
+		}
+		else if (!fabsf(v3Line2VCrossLine1V.m_fX - 0) <= 0.001)
+		{
+			fT = (v3Line1QCrossLine2V.m_fZ + v3Line2VCrossLine2Q.m_fZ) / v3Line2VCrossLine1V.m_fZ;
+		}
+		else
+		{
+			return _rIntersectionPoint;
+		}
 	}
 	else
 	{
-		return _rIntersectionPoint;
+		fT = (v3Line1QCrossLine2V.m_fX + v3Line2VCrossLine2Q.m_fX) / v3Line2VCrossLine1V.m_fX;
 	}
 
 	_rIntersectionPoint.m_fX = _krLine1.m_v3q.m_fX + fT * _krLine1.m_v3v.m_fX;
@@ -414,11 +414,14 @@ bool IsInFieldOfView(const TVector2& _krCameraPosition, const TVector2& _krCamer
 	                                          (_krObjectPosition.m_fX - _krCameraPosition.m_fX));
 	const float fCameraDirectionInRadians = atan2(_krCameraDirection.m_fY, _krCameraDirection.m_fX);
 
-	if (fObjectThetaInRadians >= (fCameraDirectionInRadians + _kfFieldOfViewInRadians / 2))
+	if (fObjectThetaInRadians < fCameraDirectionInRadians + _kfFieldOfViewInRadians / 2)
 	{
-		return false;
+		if (fObjectThetaInRadians <= fCameraDirectionInRadians - (_kfFieldOfViewInRadians / 2))
+		{
+			return false;
+		}
 	}
-	else if (fObjectThetaInRadians <= fCameraDirectionInRadians - (_kfFieldOfViewInRadians / 2))
+	else
 	{
 		return false;
 	}
@@ -481,17 +484,17 @@ TTriangle2& RotateTriangleAroundPoint(const TTriangle2& _krTriangle, const float
 	auto v3TrianglePoint3 = TVector3{_krTriangle.m_v2p3.m_fX, _krTriangle.m_v2p3.m_fY, 0};
 
 	//Resultant ZValue zeroed
-	auto RotatedTrianglePoint1 = TVector3{_rRotatedTriangle.m_v2p1.m_fX, _rRotatedTriangle.m_v2p1.m_fY, 0};
-	auto RotatedTrianglePoint2 = TVector3{_rRotatedTriangle.m_v2p2.m_fX, _rRotatedTriangle.m_v2p2.m_fY, 0};
-	auto RotatedTrianglePoint3 = TVector3{_rRotatedTriangle.m_v2p3.m_fX, _rRotatedTriangle.m_v2p3.m_fY, 0};
+	auto v3RotatedTrianglePoint1 = TVector3{_rRotatedTriangle.m_v2p1.m_fX, _rRotatedTriangle.m_v2p1.m_fY, 0};
+	auto v3RotatedTrianglePoint2 = TVector3{_rRotatedTriangle.m_v2p2.m_fX, _rRotatedTriangle.m_v2p2.m_fY, 0};
+	auto v3RotatedTrianglePoint3 = TVector3{_rRotatedTriangle.m_v2p3.m_fX, _rRotatedTriangle.m_v2p3.m_fY, 0};
 
 	// Rotation Point ZValue zeroed
 	const auto kv3RotAroundPoint = TVector3{_krRotAroundPoint.m_fX, _krRotAroundPoint.m_fY, 0};
 
 	// Translate triangle so that the rotation point is at origin
-	Subtract(v3TrianglePoint1, kv3RotAroundPoint, RotatedTrianglePoint1);
-	Subtract(v3TrianglePoint2, kv3RotAroundPoint, RotatedTrianglePoint2);
-	Subtract(v3TrianglePoint3, kv3RotAroundPoint, RotatedTrianglePoint3);
+	Subtract(v3TrianglePoint1, kv3RotAroundPoint, v3RotatedTrianglePoint1);
+	Subtract(v3TrianglePoint2, kv3RotAroundPoint, v3RotatedTrianglePoint2);
+	Subtract(v3TrianglePoint3, kv3RotAroundPoint, v3RotatedTrianglePoint3);
 
 	// Rotate coordinate system
 	constexpr TVector2 v2I{1, 0};
@@ -508,9 +511,9 @@ TTriangle2& RotateTriangleAroundPoint(const TTriangle2& _krTriangle, const float
 	_rRotatedTriangle.m_v2p3.m_fY = _rRotatedTriangle.m_v2p3.m_fX * v2IPrime.m_fY + _rRotatedTriangle.m_v2p3.m_fY * v2JPrime.m_fY;
 
 	// Convert Back to 2D Vectors Translate triangle such that the rotation point is restored to its original position
-	Add(RotatedTrianglePoint1, kv3RotAroundPoint, v3TrianglePoint1);
-	Add(RotatedTrianglePoint2, kv3RotAroundPoint, v3TrianglePoint2);
-	Add(RotatedTrianglePoint3, kv3RotAroundPoint, v3TrianglePoint3);
+	Add(v3RotatedTrianglePoint1, kv3RotAroundPoint, v3TrianglePoint1);
+	Add(v3RotatedTrianglePoint2, kv3RotAroundPoint, v3TrianglePoint2);
+	Add(v3RotatedTrianglePoint3, kv3RotAroundPoint, v3TrianglePoint3);
 
 	const auto v2TrianglePoint1 = TVector2{ v3TrianglePoint1.m_fX, v3TrianglePoint1.m_fY};
 	const auto v2TrianglePoint2 = TVector2{ v3TrianglePoint2.m_fX, v3TrianglePoint2.m_fY};

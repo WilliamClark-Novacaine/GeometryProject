@@ -414,7 +414,7 @@ void GeometryTest::TestComputeDistancePointToSphere()
 	std::cout << std::endl;
 }
 
-void GeometryTest::TestComputeDistanceCircleToCircle() const
+void GeometryTest::TestComputeDistanceCircleToCircle()
 {
 	constexpr TCircle kTCircleATest = { {2, 5}, 4 };
 	constexpr TCircle kTCircleBTest = { {- 4, -6}, 8};
@@ -437,7 +437,7 @@ void GeometryTest::TestComputeDistanceCircleToCircle() const
 	std::cout << std::endl;
 }
 
-void GeometryTest::TestComputeDistanceCircleToTriangle() const
+void GeometryTest::TestComputeDistanceCircleToTriangle()
 {
 	constexpr TCircle kTCircleTest = { {2, 5}, 4 };
 	constexpr TTriangle2 kTTriangleTest = { {4, 2}, {3, 7}, {8, 5} };
@@ -460,7 +460,7 @@ void GeometryTest::TestComputeDistanceCircleToTriangle() const
 	std::cout << std::endl;
 }
 
-void GeometryTest::TestComputeLineSphereIntersection() const
+void GeometryTest::TestComputeLineSphereIntersection()
 {
 	TVector3 v3Intersection1{};
 	TVector3 v3Intersection2{};
@@ -488,7 +488,7 @@ void GeometryTest::TestComputeLineSphereIntersection() const
 	std::cout << std::endl;
 }
 
-void GeometryTest::TestIsLinePlaneIntersection() const
+void GeometryTest::TestIsLinePlaneIntersection()
 {
 	TVector3 IntersectionPoint = {};
 	constexpr T3DLine TLineTest = { {0, -1, 0},{0, 1, -5} };
@@ -510,7 +510,7 @@ void GeometryTest::TestIsLinePlaneIntersection() const
 	std::cout << std::endl;
 }
 
-void GeometryTest::TestIsIntersection() const
+void GeometryTest::TestIsIntersection()
 {
 	TVector3 IntersectionPoint = {};
 	constexpr T3DLine kTLine1Test = { {0, 0, 0},{1, 5, 20} };
@@ -532,12 +532,12 @@ void GeometryTest::TestIsIntersection() const
 	std::cout << std::endl;
 }
 
-void GeometryTest::TestComputeIntersectionBetweenLines() const
+void GeometryTest::TestComputeIntersectionBetweenLines()
 {
 	TVector3 v3Intersection{};
 	constexpr T3DLine kTLine1Test = { {8, 7, 2}, {2, 7, 8} };
 	constexpr T3DLine kTLine2Test = { {2, 7, 8}, {8, 7, 2} };
-	constexpr TVector3 kv3ValidIntersectionsData = {6.52967f, 6.71346f, 3.63242f};
+	constexpr TVector3 kv3ValidIntersectionsData = {10, 14, 10};
 	ComputeIntersectionBetweenLines(kTLine1Test, kTLine2Test, v3Intersection);
 	std::cout << "INTERSECTION BETWEEN LINES TEST:\n";
 	if (Equals(v3Intersection, kv3ValidIntersectionsData) == true)
@@ -549,13 +549,14 @@ void GeometryTest::TestComputeIntersectionBetweenLines() const
 	{
 		std::cout << "Test " << 1 << " Failed" << std::endl;
 		std::cout << "Given Result: " << "   Intersections: " << v3Intersection.m_fX << ", " << v3Intersection.m_fY << ", " << v3Intersection.m_fZ << std::endl;
+		std::cout << "Expected Result : " << "Intersection 1 : " << kv3ValidIntersectionsData.m_fX << ", " << kv3ValidIntersectionsData.m_fY << ", " << kv3ValidIntersectionsData.m_fZ << std::endl;
 		g_iFailureCount++;
 	}
 	g_iNumTestsRun++;
 	std::cout << std::endl;
 }
 
-void GeometryTest::TestIsInFieldOfView() const
+void GeometryTest::TestIsInFieldOfView()
 {
 	constexpr TVector2 kv2CameraDirection{ -1, -1 };
 	constexpr TVector2 kv2CameraPosition{ 5, 5 };
@@ -577,30 +578,30 @@ void GeometryTest::TestIsInFieldOfView() const
 	std::cout << std::endl;
 }
 
-void GeometryTest::TestFindTriangleNormal() const
+void GeometryTest::TestFindTriangleNormal()
 {
-	TTriangle3 TTriangleTest = { {4,2,3}, {5,8,2}, {7,6,8} };
-	TVector3 v3TriangleNormal = {};
-	TVector3 v3ExpectedTriangleNormal = { 34,-8,-14};
+	constexpr TTriangle3 TTriangleTest = { {4,2,3}, {5,8,2}, {7,6,8} };
+	TVector3 kv3TriangleNormal = {};
+	constexpr TVector3 kv3ExpectedTriangleNormal = { 34,-8,-14};
 	std::cout << "FIND TRIANGLE NORMAL TEST:\n";
-	TVector3 v3Resultant = FindTriangleNormal(TTriangleTest, v3TriangleNormal);
-	if (Equals( v3Resultant,v3ExpectedTriangleNormal) == true)
+	const TVector3 kv3Resultant = FindTriangleNormal(TTriangleTest, kv3TriangleNormal);
+	if (Equals( kv3Resultant,kv3ExpectedTriangleNormal) == true)
 	{
-		std::cout << "Test " << 1 << " Succeeded!" << " Expected Result: " << v3ExpectedTriangleNormal.m_fX << "," << v3ExpectedTriangleNormal.m_fY << "," << v3ExpectedTriangleNormal.m_fZ << std::endl;
+		std::cout << "Test " << 1 << " Succeeded!" << " Expected Result: " << kv3ExpectedTriangleNormal.m_fX << "," << kv3ExpectedTriangleNormal.m_fY << "," << kv3ExpectedTriangleNormal.m_fZ << std::endl;
 		g_iSuccessCount++;
 	}
 	else
 	{
 		std::cout << "Test " << 1 << " Failed" << std::endl;
-		std::cout << "Given Result: " << v3Resultant.m_fX << "," << v3Resultant.m_fY << "," << v3Resultant.m_fZ << std::endl;
-		std::cout << "Expected Result: " << v3ExpectedTriangleNormal.m_fX << "," << v3ExpectedTriangleNormal.m_fY << "," << v3ExpectedTriangleNormal.m_fZ << std::endl;
+		std::cout << "Given Result: " << kv3Resultant.m_fX << "," << kv3Resultant.m_fY << "," << kv3Resultant.m_fZ << std::endl;
+		std::cout << "Expected Result: " << kv3ExpectedTriangleNormal.m_fX << "," << kv3ExpectedTriangleNormal.m_fY << "," << kv3ExpectedTriangleNormal.m_fZ << std::endl;
 		g_iFailureCount++;
 	}
 	g_iNumTestsRun++;
 	std::cout << std::endl;
 }
 
-void GeometryTest::TestIsSurfaceLit() const
+void GeometryTest::TestIsSurfaceLit()
 {
 	constexpr TVector3 kv3PointLight{ 0, 0, 0 };
 	constexpr TVector3 kv3LightSourcePosition{ 1, 1, 1 };
@@ -622,25 +623,25 @@ void GeometryTest::TestIsSurfaceLit() const
 	std::cout << std::endl;
 }
 
-void GeometryTest::TestRotateTriangleAroundPoint() const
+void GeometryTest::TestRotateTriangleAroundPoint()
 {
 	constexpr TTriangle2 kTTriangleToRotateTest{ { 4, 2 }, { 1, 8 }, { 4, 3 } };
 	constexpr float kfRotAngle = 6.8f;
 	constexpr TVector2 kv2RotationPoint{ 0, 0 };
 	TTriangle2 TRotatedTriangle{};
-	TVector3 v3ExpectedP1Vector = {4, 2, 0};
-	TVector3 v3ExpectedP2Vector = {1, 8, 0};
-	TVector3 v3ExpectedP3Vector = {4, 3, 0};
-	std::cout << "FIND TRIANGLE NORMAL TEST:\n";
+	constexpr TVector3 kv3ExpectedP1Vector = {4, 2, 0};
+	constexpr TVector3 kv3ExpectedP2Vector = {1, 8, 0};
+	constexpr TVector3 kv3ExpectedP3Vector = {4, 3, 0};
+	std::cout << "ROTATE TRIANGLE AROUND POINT TEST:\n";
 	RotateTriangleAroundPoint(kTTriangleToRotateTest, kfRotAngle, kv2RotationPoint, TRotatedTriangle);
-	TVector3 v3RotatedTriangleP1 = {TRotatedTriangle.m_v2p1.m_fX, TRotatedTriangle.m_v2p1.m_fY, 0};
-	TVector3 v3RotatedTriangleP2 = {TRotatedTriangle.m_v2p2.m_fX, TRotatedTriangle.m_v2p2.m_fY, 0};
-	TVector3 v3RotatedTriangleP3 = {TRotatedTriangle.m_v2p3.m_fX, TRotatedTriangle.m_v2p3.m_fY, 0};
-	if (Equals(v3RotatedTriangleP1, v3ExpectedP1Vector) && Equals(v3RotatedTriangleP2, v3ExpectedP2Vector) && Equals(v3RotatedTriangleP3, v3ExpectedP3Vector) == true)
+	const TVector3 kv3RotatedTriangleP1 = {TRotatedTriangle.m_v2p1.m_fX, TRotatedTriangle.m_v2p1.m_fY, 0};
+	const TVector3 kv3RotatedTriangleP2 = {TRotatedTriangle.m_v2p2.m_fX, TRotatedTriangle.m_v2p2.m_fY, 0};
+	const TVector3 kv3RotatedTriangleP3 = {TRotatedTriangle.m_v2p3.m_fX, TRotatedTriangle.m_v2p3.m_fY, 0};
+	if (Equals(kv3RotatedTriangleP1, kv3ExpectedP1Vector) && Equals(kv3RotatedTriangleP2, kv3ExpectedP2Vector) && Equals(kv3RotatedTriangleP3, kv3ExpectedP3Vector) == true)
 	{
-		std::cout << "Test " << 1 << " Succeeded!" << " Expected Result: " << v3ExpectedP1Vector.m_fX << "," << v3ExpectedP1Vector.m_fY << std::endl;
-		std::cout << "\t\t\t\t   " << v3ExpectedP2Vector.m_fX << "," << v3ExpectedP2Vector.m_fY << std::endl;
-		std::cout << "\t\t\t\t   " << v3ExpectedP3Vector.m_fX << "," << v3ExpectedP3Vector.m_fY << std::endl;
+		std::cout << "Test " << 1 << " Succeeded!" << " Expected Result: " << kv3ExpectedP1Vector.m_fX << "," << kv3ExpectedP1Vector.m_fY << std::endl;
+		std::cout << "\t\t\t\t   " << kv3ExpectedP2Vector.m_fX << "," << kv3ExpectedP2Vector.m_fY << std::endl;
+		std::cout << "\t\t\t\t   " << kv3ExpectedP3Vector.m_fX << "," << kv3ExpectedP3Vector.m_fY << std::endl;
 		g_iSuccessCount++;
 	}
 	else
@@ -649,9 +650,9 @@ void GeometryTest::TestRotateTriangleAroundPoint() const
 		std::cout << "Given Result: " << TRotatedTriangle.m_v2p1.m_fX << "," << TRotatedTriangle.m_v2p1.m_fY << std::endl;
 		std::cout << "\t      "<<TRotatedTriangle.m_v2p2.m_fX << "," << TRotatedTriangle.m_v2p2.m_fY << std::endl;
 		std::cout << "\t      "<<TRotatedTriangle.m_v2p3.m_fX << "," << TRotatedTriangle.m_v2p3.m_fY << std::endl;
-		std::cout << "Expected Result: " << v3ExpectedP1Vector.m_fX << "," << v3ExpectedP1Vector.m_fY << std::endl;
-		std::cout << "\t\t "<<v3ExpectedP1Vector.m_fX << "," << v3ExpectedP1Vector.m_fY << std::endl;
-		std::cout << "\t\t "<<v3ExpectedP1Vector.m_fX << "," << v3ExpectedP1Vector.m_fY << std::endl;
+		std::cout << "Expected Result: " << kv3ExpectedP1Vector.m_fX << "," << kv3ExpectedP1Vector.m_fY << std::endl;
+		std::cout << "\t\t "<<kv3ExpectedP1Vector.m_fX << "," << kv3ExpectedP1Vector.m_fY << std::endl;
+		std::cout << "\t\t "<<kv3ExpectedP1Vector.m_fX << "," << kv3ExpectedP1Vector.m_fY << std::endl;
 		g_iFailureCount++;
 	}
 	g_iNumTestsRun++;
