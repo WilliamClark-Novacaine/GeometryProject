@@ -12,9 +12,11 @@
 bool Equals(const TVector3& _krA, const TVector3& _krB)
 {
 	//Calculates an approximation of equality, to account for floating point number accuracy
-	return fabsf(_krA.m_fX - _krB.m_fX) <= FLT_EPSILON &&
-		   fabsf(_krA.m_fY - _krB.m_fY) <= FLT_EPSILON &&
-		   fabsf(_krA.m_fZ - _krB.m_fZ) <= FLT_EPSILON;
+	return fabsf(_krA.m_fX - _krB.m_fX) <= 0.001 &&
+		   fabsf(_krA.m_fY - _krB.m_fY) <= 0.001 &&
+		   fabsf(_krA.m_fZ - _krB.m_fZ) <= 0.001;
+	//Note to self: Use a damn Epsilon!
+	//Never mind Epsilon causes issues...
 }
 
 /***********************************************
@@ -189,12 +191,11 @@ float ComputeDistancePointToLine(const T3DLine& _krLine, const TVector3& _krPoin
 ************************************************/
 float ComputeDistancePointToPlane(const TPlane& _krPlane, const TVector3& _krPoint)
 {
-	const T3DLine line{_krPoint, _krPlane.m_v3normal};
-	TVector3 v3IntersectionPoint{};
-	IsLinePlaneIntersection(line, _krPlane, v3IntersectionPoint);
-	TVector3 v3DifVector{};
-	Subtract(v3IntersectionPoint, _krPoint, v3DifVector);
-	return Magnitude(v3DifVector);
+	TVector3 v3PlaneToPoint{};
+	TVector3 v3PlaneNormal = _krPlane.m_v3normal;
+	TVector3 v3PlanePoint = _krPlane.m_v3point;
+	TVector3 SubVector = Subtract(v3PlanePoint, _krPoint, v3PlaneToPoint);
+	return abs(DotProduct(v3PlaneNormal, v3PlaneToPoint)) / Magnitude(v3PlaneNormal);
 }
 
 /***********************************************
@@ -475,22 +476,22 @@ bool IsSurfaceLit(const TVector3& _krPointOnSurface, const TVector3& _krLightSou
 TTriangle2& RotateTriangleAroundPoint(const TTriangle2& _krTriangle, const float _kfRotAngleInRadians, const TVector2& _krRotAroundPoint, TTriangle2& _rRotatedTriangle)
 {
 	// Convert TVector2 to TVector3 by zeroing the Z axis
-	auto kTriangleV3Point1 = TVector3{_krTriangle.m_v2p1.m_fX, _krTriangle.m_v2p1.m_fY, 0};
-	auto kTriangleV3Point2 = TVector3{_krTriangle.m_v2p2.m_fX, _krTriangle.m_v2p2.m_fY, 0};
-	auto kTriangleV3Point3 = TVector3{_krTriangle.m_v2p3.m_fX, _krTriangle.m_v2p3.m_fY, 0};
+	auto v3TrianglePoint1 = TVector3{_krTriangle.m_v2p1.m_fX, _krTriangle.m_v2p1.m_fY, 0};
+	auto v3TrianglePoint2 = TVector3{_krTriangle.m_v2p2.m_fX, _krTriangle.m_v2p2.m_fY, 0};
+	auto v3TrianglePoint3 = TVector3{_krTriangle.m_v2p3.m_fX, _krTriangle.m_v2p3.m_fY, 0};
 
 	//Resultant ZValue zeroed
-	auto RotatedTriangleV3Point1 = TVector3{_rRotatedTriangle.m_v2p1.m_fX, _rRotatedTriangle.m_v2p1.m_fY, 0};
-	auto RotatedTriangleV3Point2 = TVector3{_rRotatedTriangle.m_v2p2.m_fX, _rRotatedTriangle.m_v2p2.m_fY, 0};
-	auto RotatedTriangleV3Point3 = TVector3{_rRotatedTriangle.m_v2p3.m_fX, _rRotatedTriangle.m_v2p3.m_fY, 0};
+	auto RotatedTrianglePoint1 = TVector3{_rRotatedTriangle.m_v2p1.m_fX, _rRotatedTriangle.m_v2p1.m_fY, 0};
+	auto RotatedTrianglePoint2 = TVector3{_rRotatedTriangle.m_v2p2.m_fX, _rRotatedTriangle.m_v2p2.m_fY, 0};
+	auto RotatedTrianglePoint3 = TVector3{_rRotatedTriangle.m_v2p3.m_fX, _rRotatedTriangle.m_v2p3.m_fY, 0};
 
 	// Rotation Point ZValue zeroed
-	const auto kV3RotAroundPoint = TVector3{_krRotAroundPoint.m_fX, _krRotAroundPoint.m_fY, 0};
+	const auto kv3RotAroundPoint = TVector3{_krRotAroundPoint.m_fX, _krRotAroundPoint.m_fY, 0};
 
 	// Translate triangle so that the rotation point is at origin
-	Subtract(kTriangleV3Point1, kV3RotAroundPoint, RotatedTriangleV3Point1);
-	Subtract(kTriangleV3Point2, kV3RotAroundPoint, RotatedTriangleV3Point2);
-	Subtract(kTriangleV3Point3, kV3RotAroundPoint, RotatedTriangleV3Point3);
+	Subtract(v3TrianglePoint1, kv3RotAroundPoint, RotatedTrianglePoint1);
+	Subtract(v3TrianglePoint2, kv3RotAroundPoint, RotatedTrianglePoint2);
+	Subtract(v3TrianglePoint3, kv3RotAroundPoint, RotatedTrianglePoint3);
 
 	// Rotate coordinate system
 	constexpr TVector2 v2I{1, 0};
@@ -506,10 +507,18 @@ TTriangle2& RotateTriangleAroundPoint(const TTriangle2& _krTriangle, const float
 	_rRotatedTriangle.m_v2p3.m_fX = _rRotatedTriangle.m_v2p3.m_fX * v2IPrime.m_fX + _rRotatedTriangle.m_v2p3.m_fY * v2JPrime.m_fX;
 	_rRotatedTriangle.m_v2p3.m_fY = _rRotatedTriangle.m_v2p3.m_fX * v2IPrime.m_fY + _rRotatedTriangle.m_v2p3.m_fY * v2JPrime.m_fY;
 
-	// Translate triangle such that the rotation point is restored to its original position
-	Add(RotatedTriangleV3Point1, kV3RotAroundPoint, kTriangleV3Point1);
-	Add(RotatedTriangleV3Point2, kV3RotAroundPoint, kTriangleV3Point2);
-	Add(RotatedTriangleV3Point3, kV3RotAroundPoint, kTriangleV3Point3);
+	// Convert Back to 2D Vectors Translate triangle such that the rotation point is restored to its original position
+	Add(RotatedTrianglePoint1, kv3RotAroundPoint, v3TrianglePoint1);
+	Add(RotatedTrianglePoint2, kv3RotAroundPoint, v3TrianglePoint2);
+	Add(RotatedTrianglePoint3, kv3RotAroundPoint, v3TrianglePoint3);
+
+	const auto v2TrianglePoint1 = TVector2{ v3TrianglePoint1.m_fX, v3TrianglePoint1.m_fY};
+	const auto v2TrianglePoint2 = TVector2{ v3TrianglePoint2.m_fX, v3TrianglePoint2.m_fY};
+	const auto v2TrianglePoint3 = TVector2{ v3TrianglePoint3.m_fX,	v3TrianglePoint3.m_fY};
+
+	_rRotatedTriangle.m_v2p1 = v2TrianglePoint1;
+	_rRotatedTriangle.m_v2p2 = v2TrianglePoint2;
+	_rRotatedTriangle.m_v2p3 = v2TrianglePoint3;
 
 	return _rRotatedTriangle;
 }
